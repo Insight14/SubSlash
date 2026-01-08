@@ -10,10 +10,10 @@ interface Subscription {
   icon: string;
 }
 
-export default function HomeScreen() {
+export default function DashboardScreen() {
   const upcomingSubscriptions: Subscription[] = [
     { id: '1', name: 'Amazon Prime', amount: '$7.49', date: 'Jan 12, 2026', color: '#4CAF50', icon: '🟢' },
-    { id: '2', name: 'Chegg', amount: '$15.95', date: 'Jan 20, 2026', color: '#FF5722', icon: '🔴' },
+    { id: '2', name: 'Chegg', amount: '', date: 'Jan 20, 2026', color: '#FF5722', icon: '🔴' },
     { id: '3', name: 'Hulu', amount: '$11.99', date: 'Jan 30, 2026', color: '#FF5722', icon: '🔴' },
     { id: '4', name: 'Quizlet', amount: '$7.99', date: 'Jan 30, 2026', color: '#4CAF50', icon: '🟢' },
   ];
