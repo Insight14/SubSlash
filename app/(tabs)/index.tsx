@@ -1,3 +1,5 @@
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -11,6 +13,7 @@ interface Subscription {
 }
 
 export default function HomeScreen() {
+  const router = useRouter();
   const upcomingSubscriptions: Subscription[] = [
     { id: '1', name: 'Amazon Prime', amount: '$7.49', date: 'Jan 12, 2026', color: '#4CAF50', icon: '🟢' },
     { id: '2', name: 'Chegg', amount: '$15.95', date: 'Jan 20, 2026', color: '#FF5722', icon: '🔴' },
@@ -69,16 +72,16 @@ export default function HomeScreen() {
 
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>💬</Text>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/chatbot')}>
+          <Ionicons name="chatbubbles-outline" size={28} color="#2c5a7f" />
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.navItem, styles.navItemActive]}>
+        <TouchableOpacity style={[styles.navItem, styles.navItemActive]} onPress={() => router.push('/(tabs)')}>
           <View style={styles.navIconCircle}>
-            <Text style={styles.navIconHome}>🏠</Text>
+            <Ionicons name="home" size={24} color="#fff" />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Text style={styles.navIcon}>⚙️</Text>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/explore')}>
+          <Ionicons name="settings-outline" size={28} color="#2c5a7f" />
         </TouchableOpacity>
       </View>
     </View>
@@ -99,7 +102,7 @@ const styles = StyleSheet.create({
     height: 120,
   },
   blueSection: {
-    backgroundColor: '#004B87',
+    backgroundColor: '#2c5a7f',
     height: '100%',
     width: '100%',
   },
@@ -196,31 +199,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingVertical: 16,
-    paddingBottom: 24,
+    paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    borderTopColor: '#e0e0e0',
     backgroundColor: '#fff',
   },
   navItem: {
+    padding: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   navItemActive: {
     // Active state styling
   },
-  navIcon: {
-    fontSize: 28,
-  },
   navIconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#004B87',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#2c5a7f',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  navIconHome: {
-    fontSize: 28,
   },
 });

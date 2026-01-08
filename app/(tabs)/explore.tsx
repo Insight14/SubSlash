@@ -1,112 +1,241 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Fonts } from '@/constants/theme';
+export default function SettingsScreen() {
+  const router = useRouter();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [budgetAlerts, setBudgetAlerts] = useState(true);
 
-export default function TabTwoScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <View style={styles.container}>
+      {/* Header with decorative background */}
+      <View style={styles.headerContainer}>
+        <View style={styles.headerBackground}>
+          <View style={styles.blueSection} />
+          <View style={styles.redSlash} />
+        </View>
+      </View>
+
+      {/* Settings Content */}
+      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Preferences Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Preferences</Text>
+          
+          <View style={styles.settingItem}>
+            <View>
+              <Text style={styles.settingLabel}>Push Notifications</Text>
+              <Text style={styles.settingDescription}>Get alerts for subscription changes</Text>
+            </View>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={setNotificationsEnabled}
+              trackColor={{ false: '#ddd', true: '#2c5a7f' }}
+              thumbColor="#fff"
+            />
+          </View>
+
+          <View style={styles.settingItem}>
+            <View>
+              <Text style={styles.settingLabel}>Budget Alerts</Text>
+              <Text style={styles.settingDescription}>Notify when spending exceeds limit</Text>
+            </View>
+            <Switch
+              value={budgetAlerts}
+              onValueChange={setBudgetAlerts}
+              trackColor={{ false: '#ddd', true: '#2c5a7f' }}
+              thumbColor="#fff"
+            />
+          </View>
+        </View>
+
+        {/* Account Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Account</Text>
+          
+          <TouchableOpacity style={styles.settingItemWithArrow}>
+            <View>
+              <Text style={styles.settingLabel}>Payment Methods</Text>
+              <Text style={styles.settingDescription}>View and manage payment options</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#666" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.settingItemWithArrow}>
+            <View>
+              <Text style={styles.settingLabel}>Billing History</Text>
+              <Text style={styles.settingDescription}>View past transactions</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#666" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.settingItemWithArrow}>
+            <View>
+              <Text style={styles.settingLabel}>Privacy & Security</Text>
+              <Text style={styles.settingDescription}>Manage your privacy settings</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#666" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Support Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Support</Text>
+          
+          <TouchableOpacity style={styles.settingItemWithArrow}>
+            <View>
+              <Text style={styles.settingLabel}>Help Center</Text>
+              <Text style={styles.settingDescription}>Browse FAQs and guides</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#666" />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.settingItemWithArrow}>
+            <View>
+              <Text style={styles.settingLabel}>Contact Support</Text>
+              <Text style={styles.settingDescription}>Reach out to our team</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#666" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Sign Out Button */}
+        <View style={styles.buttonSection}>
+          <TouchableOpacity style={styles.signOutButton}>
+            <Text style={styles.signOutButtonText}>Sign Out</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+
+      {/* Bottom Navigation */}
+      <View style={styles.bottomNav}>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)/chatbot')}>
+          <Ionicons name="chatbubbles-outline" size={28} color="#2c5a7f" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)')}>
+          <Ionicons name="home-outline" size={28} color="#2c5a7f" />
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.navItem, styles.navItemActive]}>
+          <View style={styles.navIconCircle}>
+            <Ionicons name="settings" size={24} color="#fff" />
+          </View>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
   },
-  titleContainer: {
+  headerContainer: {
+    height: 140,
+    overflow: 'hidden',
+  },
+  headerBackground: {
+    position: 'relative',
+    height: 140,
+  },
+  blueSection: {
+    backgroundColor: '#2c5a7f',
+    height: '100%',
+    width: '100%',
+  },
+  redSlash: {
+    position: 'absolute',
+    width: 150,
+    height: 200,
+    backgroundColor: '#D64545',
+    transform: [{ rotate: '25deg' }],
+    top: -50,
+    right: -30,
+  },
+  content: {
+    flex: 1,
+    paddingHorizontal: 16,
+  },
+  section: {
+    marginTop: 24,
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2c5a7f',
+    marginBottom: 16,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  settingItem: {
     flexDirection: 'row',
-    gap: 8,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  settingItemWithArrow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  settingLabel: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 4,
+  },
+  settingDescription: {
+    fontSize: 12,
+    color: '#888',
+  },
+  buttonSection: {
+    marginTop: 24,
+    marginBottom: 32,
+  },
+  signOutButton: {
+    paddingVertical: 14,
+    borderRadius: 8,
+    backgroundColor: '#D64545',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  signOutButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    backgroundColor: '#fff',
+  },
+  navItem: {
+    padding: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navItemActive: {
+    // Active styling
+  },
+  navIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#2c5a7f',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
+
