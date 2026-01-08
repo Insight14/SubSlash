@@ -1,12 +1,43 @@
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function WelcomeScreen() {
   const router = useRouter();
+  const opacity = useRef(new Animated.Value(1)).current;
+  const timeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    // auto-start fade-out after short delay
+    timeoutRef.current = setTimeout(() => {
+      Animated.timing(opacity, {
+        toValue: 0,
+        duration: 700,
+        useNativeDriver: true,
+      }).start(() => {
+        router.replace('/signup');
+      });
+    }, 800) as unknown as number;
+
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current as any);
+    };
+  }, [opacity, router]);
+
+  const handleSkip = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current as any);
+      timeoutRef.current = null;
+    }
+    Animated.timing(opacity, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => router.replace('/signup'));
+  };
 
   return (
-    <View style={styles.container}>
+    <Animated.View style={[styles.container, { opacity }]}> 
       <View style={styles.logoContainer}>
         <View style={styles.logoBox}>
           <View style={styles.logoBackground}>
@@ -18,12 +49,12 @@ export default function WelcomeScreen() {
       
       <TouchableOpacity 
         style={styles.taglineContainer}
-        onPress={() => router.push('/signup')}
+        onPress={handleSkip}
         activeOpacity={0.8}
       >
         <Text style={styles.tagline}>"What's in your subscription?"</Text>
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 }
 

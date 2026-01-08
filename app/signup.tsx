@@ -1,9 +1,14 @@
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { Animated, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(opacity, { toValue: 1, duration: 400, useNativeDriver: true }).start();
+  }, [opacity]);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,80 +20,82 @@ export default function SignUpScreen() {
   };
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
+    <Animated.View style={{ flex: 1, opacity }}>
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container}
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>Create New Account</Text>
-          <Text style={styles.subtitle}>
-            Already Registered?{' '}
-            <Text style={styles.link}>Log in here.</Text>
-          </Text>
-        </View>
-
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>NAME</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Your Name"
-              placeholderTextColor="#999"
-              value={name}
-              onChangeText={setName}
-            />
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.header}>
+            <Text style={styles.title}>Create New Account</Text>
+            <Text style={styles.subtitle}>
+              Already Registered?{' '}
+              <Text style={styles.link}>Log in here.</Text>
+            </Text>
           </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>EMAIL</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="yourname@whatever.domain"
-              placeholderTextColor="#999"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
+          <View style={styles.form}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>NAME</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Your Name"
+                placeholderTextColor="#999"
+                value={name}
+                onChangeText={setName}
+              />
+            </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>PASSWORD</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="•••••"
-              placeholderTextColor="#999"
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-            />
-          </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>EMAIL</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="yourname@whatever.domain"
+                placeholderTextColor="#999"
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
 
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>DATE OF BIRTH</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="MM/DD/YYYY"
-              placeholderTextColor="#999"
-              value={dateOfBirth}
-              onChangeText={setDateOfBirth}
-            />
-          </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>PASSWORD</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="•••••"
+                placeholderTextColor="#999"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+              />
+            </View>
 
-          <TouchableOpacity 
-            style={styles.signUpButton}
-            onPress={handleSignUp}
-            activeOpacity={0.8}
-          >
-            <Text style={styles.signUpButtonText}>Sign up</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>DATE OF BIRTH</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="MM/DD/YYYY"
+                placeholderTextColor="#999"
+                value={dateOfBirth}
+                onChangeText={setDateOfBirth}
+              />
+            </View>
+
+            <TouchableOpacity 
+              style={styles.signUpButton}
+              onPress={handleSignUp}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.signUpButtonText}>Sign up</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Animated.View>
   );
 }
 
