@@ -1,5 +1,6 @@
-import React from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { fetchUserSubscriptions, SubscriptionData } from '../lib/api';
 
 interface Subscription {
   id: string;
@@ -11,12 +12,37 @@ interface Subscription {
 }
 
 export default function DashboardScreen() {
-  const upcomingSubscriptions: Subscription[] = [
-    { id: '1', name: 'Amazon Prime', amount: '$7.49', date: 'Jan 12, 2026', color: '#4CAF50', icon: '🟢' },
-    { id: '2', name: 'Chegg', amount: '', date: 'Jan 20, 2026', color: '#FF5722', icon: '🔴' },
-    { id: '3', name: 'Hulu', amount: '$11.99', date: 'Jan 30, 2026', color: '#FF5722', icon: '🔴' },
-    { id: '4', name: 'Quizlet', amount: '$7.99', date: 'Jan 30, 2026', color: '#4CAF50', icon: '🟢' },
-  ];
+  const [userData, setUserData] = useState<SubscriptionData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [upcomingSubscriptions, setUpcomingSubscriptions] = useState<Subscription[]>([]);
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      setLoading(true);
+      const data = await fetchUserSubscriptions('user_001');
+      setUserData(data);
+      
+      if (data) {
+        // Transform backend data to match UI format
+        const transformed = data.subscriptions.map((sub, index) => ({
+          id: String(index + 1),
+          name: sub.name,
+          amount: `$${sub.paymentAmount.toFixed(2)}`,
+          date: new Date(sub.expiryDate).toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric' 
+          }),
+          color: sub.status === 'Active' ? '#4CAF50' : '#FF5722',
+          icon: sub.status === 'Active' ? '🟢' : '🔴',
+        }));
+        setUpcomingSubscriptions(transformed);
+      }
+      setLoading(false);
+    };
+
+    loadUserData();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -27,44 +53,57 @@ export default function DashboardScreen() {
           <View style={styles.redSlash} />
         </View>
         <View style={styles.greetingContainer}>
-          <Text style={styles.greeting}>Good morning, User</Text>
+          <Text style={styles.greeting}>Good morning, {userData?.cardHolderName || 'User'}</Text>
         </View>
       </View>
 
       {/* Main Content */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Upcoming Section */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Upcoming</Text>
-            <TouchableOpacity>
-              <Text style={styles.viewAll}>View all &gt;&gt;</Text>
-            </TouchableOpacity>
+        {loading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#004B87" />
+            <Text style={styles.loadingText}>Loading your subscriptions...</Text>
           </View>
-
-          {upcomingSubscriptions.map((sub) => (
-            <View key={sub.id} style={styles.subscriptionItem}>
-              <View style={styles.subscriptionLeft}>
-                <Text style={styles.subscriptionIcon}>{sub.icon}</Text>
-                <View>
-                  <Text style={styles.subscriptionName}>{sub.name}</Text>
-                  <Text style={styles.subscriptionDate}>{sub.date}</Text>
-                </View>
+        ) : upcomingSubscriptions.length > 0 ? (
+          <>
+            {/* Upcoming Section */}
+            <View style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Upcoming</Text>
+                <TouchableOpacity>
+                  <Text style={styles.viewAll}>View all &gt;&gt;</Text>
+                </TouchableOpacity>
               </View>
-              {sub.amount !== '' && (
-                <Text style={styles.subscriptionAmount}>{sub.amount}</Text>
-              )}
-            </View>
-          ))}
-        </View>
 
-        {/* Pending Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Pending</Text>
-          <View style={styles.emptyPending}>
-            <Text style={styles.emptyText}>No pending subscriptions</Text>
+              {upcomingSubscriptions.map((sub) => (
+                <View key={sub.id} style={styles.subscriptionItem}>
+                  <View style={styles.subscriptionLeft}>
+                    <Text style={styles.subscriptionIcon}>{sub.icon}</Text>
+                    <View>
+                      <Text style={styles.subscriptionName}>{sub.name}</Text>
+                      <Text style={styles.subscriptionDate}>{sub.date}</Text>
+                    </View>
+                  </View>
+                  {sub.amount !== '' && (
+                    <Text style={styles.subscriptionAmount}>{sub.amount}</Text>
+                  )}
+                </View>
+              ))}
+            </View>
+
+            {/* Pending Section */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Pending</Text>
+              <View style={styles.emptyPending}>
+                <Text style={styles.emptyText}>No pending subscriptions</Text>
+              </View>
+            </View>
+          </>
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No subscriptions found</Text>
           </View>
-        </View>
+        )}
       </ScrollView>
 
       {/* Bottom Navigation */}
@@ -134,6 +173,17 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 60,
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 14,
+    color: '#888',
+  },
   section: {
     marginTop: 24,
     marginBottom: 16,
@@ -186,6 +236,10 @@ const styles = StyleSheet.create({
   },
   emptyPending: {
     paddingVertical: 32,
+    alignItems: 'center',
+  },
+  emptyContainer: {
+    paddingVertical: 60,
     alignItems: 'center',
   },
   emptyText: {
