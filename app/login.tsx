@@ -1,15 +1,15 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as AuthSession from 'expo-auth-session';
-import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import React, { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'expo-router';
+import React, { useState, useEffect, useRef } from 'react';
 import { ActivityIndicator, Alert, Animated, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 import { supabase } from '../lib/supabase';
 
 WebBrowser.maybeCompleteAuthSession();
 
-export default function SignUpScreen() {
+export default function LoginScreen() {
   const router = useRouter();
   const opacity = useRef(new Animated.Value(0)).current;
 
@@ -17,52 +17,35 @@ export default function SignUpScreen() {
     Animated.timing(opacity, { toValue: 1, duration: 400, useNativeDriver: true }).start();
   }, [opacity]);
   
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSignUp = async () => {
-    if (!email || !password || !name) {
-      Alert.alert('Error', 'Please fill in all required fields');
+  const handleLogin = async () => {
+    if (!email || !password) {
+      Alert.alert('Error', 'Please enter your email and password');
       return;
     }
 
     setLoading(true);
     
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
-      options: {
-        data: {
-          full_name: name,
-          date_of_birth: dateOfBirth,
-        },
-      },
     });
 
     setLoading(false);
 
     if (error) {
-      Alert.alert('Sign Up Error', error.message);
+      Alert.alert('Login Error', error.message);
       return;
     }
 
-    if (data.user) {
-      if (data.user.identities?.length === 0) {
-        Alert.alert('Account Exists', 'An account with this email already exists. Please log in instead.');
-      } else {
-        // Navigate to verification screen with the email
-        router.push({
-          pathname: '/verify',
-          params: { email },
-        });
-      }
-    }
+    // Successfully logged in - navigate to main app
+    router.replace('/(tabs)');
   };
 
-  const handleGoogleSignUp = async () => {
+  const handleGoogleLogin = async () => {
     setLoading(true);
     
     const redirectUrl = AuthSession.makeRedirectUri({
@@ -96,12 +79,32 @@ export default function SignUpScreen() {
             access_token: accessToken,
             refresh_token: refreshToken,
           });
-          router.push('/(tabs)');
+          router.replace('/(tabs)');
         }
       }
     }
     
     setLoading(false);
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      Alert.alert('Enter Email', 'Please enter your email address first');
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+    setLoading(false);
+
+    if (error) {
+      Alert.alert('Error', error.message);
+      return;
+    }
+
+    Alert.alert('Check Your Email', 'We sent you a password reset link.');
   };
 
   return (
@@ -115,28 +118,16 @@ export default function SignUpScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.header}>
-            <Text style={styles.title}>Create New{'\n'}Account</Text>
+            <Text style={styles.title}>Welcome{'\n'}Back</Text>
             <Text style={styles.subtitle}>
-              Already Registered?{' '}
-              <Text style={styles.link} onPress={() => router.push('/login')}>
-                Log in here.
+              Don't have an account?{' '}
+              <Text style={styles.link} onPress={() => router.push('/signup')}>
+                Sign up here.
               </Text>
             </Text>
           </View>
 
           <View style={styles.form}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>NAME</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Your Name"
-                placeholderTextColor="#999"
-                value={name}
-                onChangeText={setName}
-                editable={!loading}
-              />
-            </View>
-
             <View style={styles.inputGroup}>
               <Text style={styles.label}>EMAIL</Text>
               <TextInput
@@ -164,28 +155,24 @@ export default function SignUpScreen() {
               />
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>DATE OF BIRTH</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="MM/DD/YYYY"
-                placeholderTextColor="#999"
-                value={dateOfBirth}
-                onChangeText={setDateOfBirth}
-                editable={!loading}
-              />
-            </View>
+            <TouchableOpacity 
+              onPress={handleForgotPassword}
+              disabled={loading}
+              style={styles.forgotPasswordContainer}
+            >
+              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity 
-              style={[styles.signUpButton, loading && styles.buttonDisabled]}
-              onPress={handleSignUp}
+              style={[styles.loginButton, loading && styles.buttonDisabled]}
+              onPress={handleLogin}
               activeOpacity={0.8}
               disabled={loading}
             >
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.signUpButtonText}>Sign up</Text>
+                <Text style={styles.loginButtonText}>Log in</Text>
               )}
             </TouchableOpacity>
 
@@ -197,12 +184,12 @@ export default function SignUpScreen() {
 
             <TouchableOpacity 
               style={[styles.googleButton, loading && styles.buttonDisabled]}
-              onPress={handleGoogleSignUp}
+              onPress={handleGoogleLogin}
               activeOpacity={0.8}
               disabled={loading}
             >
               <Ionicons name="logo-google" size={20} color="#333" style={styles.googleIcon} />
-              <Text style={styles.googleButtonText}>Sign up with Google</Text>
+              <Text style={styles.googleButtonText}>Continue with Google</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -219,11 +206,11 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 60,
+    paddingTop: 80,
     paddingBottom: 40,
   },
   header: {
-    marginBottom: 40,
+    marginBottom: 48,
   },
   title: {
     fontSize: 32,
@@ -264,14 +251,23 @@ const styles = StyleSheet.create({
     color: '#000',
     textAlign: 'center',
   },
-  signUpButton: {
+  forgotPasswordContainer: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    color: '#004B87',
+    fontWeight: '500',
+  },
+  loginButton: {
     backgroundColor: '#D64545',
     borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 16,
   },
-  signUpButtonText: {
+  loginButtonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
@@ -313,3 +309,4 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
