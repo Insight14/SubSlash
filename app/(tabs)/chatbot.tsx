@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface Message {
   id: string;
@@ -14,7 +14,7 @@ export default function ChatbotScreen() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello User! I'm Rhas, your Capital One virtual assistant ready to help you financially. How may I help you today?",
+      text: "Hello Jeremiah! I'm Rhas, your Capital One virtual assistant ready to help you financially. How may I help you today?",
       isBot: true,
     },
     {
@@ -26,6 +26,21 @@ export default function ChatbotScreen() {
       id: '3',
       text: "Yes, I can help you!\n\nAfter reviewing your subscriptions, I see that you have two different streaming platforms: Amazon Prime and Hulu.\n\nOne option to save money would be to cancel your Hulu subscription, since many movies and shows are also available on Amazon Prime, along with additional benefits.\n\nAnother option would be to switch to a different streaming service, such as Netflix or Disney+, depending on the type of content you enjoy most.\n\nLet me know which option you prefer!",
       isBot: true,
+    },
+    {
+      id: '4',
+      text: "Okay, thank you for the suggestions! I think I will remove my Hulu subscription to save as much money as I can.",
+      isBot: false,
+    },
+    {
+      id: '5',
+      text: "That’s a great choice! Canceling your Hulu subscription will help you reduce your expenses and stay on track with your savings goals.\n\nI would be more than happy to help you review additional subscriptions or find other ways to manage your spending.",
+      isBot: true,
+    },
+    {
+      id: '6',
+      text: "Thanks, Rhas! I appreciate your help.",
+      isBot: false,
     },
   ]);
   const [inputText, setInputText] = useState('');
@@ -82,7 +97,11 @@ export default function ChatbotScreen() {
           <View key={message.id} style={styles.messageWrapper}>
             {message.isBot && (
               <View style={styles.botAvatar}>
-                <Ionicons name="chatbubbles" size={20} color="#666" />
+                <Image
+                  source={require('@/assets/images/chatbot_mess.png')}
+                  style={{ width: 20, height: 20 }}
+                  resizeMode="contain"
+                />
               </View>
             )}
             <View style={[
@@ -120,11 +139,24 @@ export default function ChatbotScreen() {
         </TouchableOpacity>
       </View>
 
+      {/* Chatbot Image */}
+      <View style={styles.chatbotImageContainer}>
+        <Image
+          source={require('@/assets/images/chatbot_mess.png')}
+          style={styles.chatbotImage}
+          resizeMode="contain"
+        />
+      </View>
+
       {/* Bottom Navigation */}
       <View style={styles.bottomNav}>
         <TouchableOpacity style={[styles.navItem, styles.navItemActive]}>
           <View style={styles.navIconCircle}>
-            <Ionicons name="chatbubbles" size={24} color="#fff" />
+            <Image
+              source={require('@/assets/images/chatbot_chatpage.png')}
+              style={{ width: 24, height: 24 }}
+              resizeMode="contain"
+            />
           </View>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/(tabs)')}>
@@ -195,6 +227,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     alignItems: 'flex-end',
   },
+ /* botAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#e0e0e0',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+  },*/
   botAvatar: {
     width: 36,
     height: 36,
@@ -284,5 +325,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#2c5a7f',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  chatbotImageContainer: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+    alignItems: 'center',
+  },
+  chatbotImage: {
+    width: 48,
+    height: 48,
   },
 });
